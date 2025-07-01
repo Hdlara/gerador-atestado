@@ -1,4 +1,5 @@
-from flask import send_file, Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash
+import shutil 
 import os
 import sys
 import signal
@@ -104,20 +105,31 @@ def gerar():
 
     if not nome or not receita:
         return "Nome e motivo são obrigatórios!", 400
-    
+        
+     arquivos_para_abrir = []
+
     if imprimir_receita == 'sim':
         receita_pdf = preencher_com_reportlab_receita(nome, None, receita)
-        return send_file(receita_pdf, as_attachment=True)
+        # mover ou salvar na pasta_pdf
+        novo_caminho = os.path.join(pasta_pdf, f"receita_{datetime.now().timestamp()}.pdf")
+        shutil.move(receita_pdf, novo_caminho)
+        arquivos_para_abrir.append(f"/static/pdfs/{os.path.basename(novo_caminho)}")
 
     if imprimir_atestado == 'sim' and acompanhante == "sim":
         atestado_pdf = preencher_com_reportlab_atestado_duplo(nome, motivo, cid, int(justificativa), nome_acompanhante, nome)
-        return send_file(atestado_pdf, as_attachment=True)
+        novo_caminho = os.path.join(pasta_pdf, f"atestado_duplo_{datetime.now().timestamp()}.pdf")
+        shutil.move(atestado_pdf, novo_caminho)
+        arquivos_para_abrir.append(f"/static/pdfs/{os.path.basename(novo_caminho)}")
     elif acompanhante == "sim":
         atestado_pdf = preencher_com_reportlab_atestado_unico(nome_acompanhante, nome, cid, 2)
-        return send_file(atestado_pdf, as_attachment=True)
+        novo_caminho = os.path.join(pasta_pdf, f"atestado_acomp_{datetime.now().timestamp()}.pdf")
+        shutil.move(atestado_pdf, novo_caminho)
+        arquivos_para_abrir.append(f"/static/pdfs/{os.path.basename(novo_caminho)}")
     else:
         atestado_pdf = preencher_com_reportlab_atestado_unico(nome, motivo, cid, int(justificativa))
-        return send_file(atestado_pdf, as_attachment=True)
+        novo_caminho = os.path.join(pasta_pdf, f"atestado_{datetime.now().timestamp()}.pdf")
+        shutil.move(atestado_pdf, novo_caminho)
+        arquivos_para_abrir.append(f"/static/pdfs/{os.path.basename(novo_caminho)}")
 
-    #flash("Receita e atestado gerados com sucesso!")
-    return redirect(url_for('index'))
+    # Renderiza página com script que abre as abas dos PDFs
+    return render_template("abrir_pdfs.html", arquivos=arquivos_para_abrir)
