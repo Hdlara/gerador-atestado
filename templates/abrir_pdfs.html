@@ -1,6 +1,57 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><meta charset="UTF-8" /><title>Arquivos</title></head>
+<head>
+  <meta charset="UTF-8" />
+  <title>Arquivos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background-color: #f5f5f5;
+      color: #333;
+      text-align: center;
+    }
+
+    h1 {
+      color: #2c3e50;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      margin: 10px 0;
+    }
+
+    a {
+      text-decoration: none;
+      color: #2980b9;
+      font-weight: bold;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .botao-voltar {
+      margin-top: 30px;
+      padding: 10px 20px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    .botao-voltar:hover {
+      background-color: #219150;
+    }
+  </style>
+</head>
 <body>
   <h1>Arquivos gerados</h1>
   <p>Caso os PDFs não abram automaticamente, clique nos links:</p>
@@ -9,6 +60,9 @@
       <li><a href="{{ arquivo }}" target="_blank">{{ arquivo.split('/')[-1] }}</a></li>
     {% endfor %}
   </ul>
+
+  <a class="botao-voltar" href="{{ url_for('index') }}">Gerar novos documentos</a>
+
   <script>
     window.onload = function() {
       {% for arquivo in arquivos %}
