@@ -18,7 +18,6 @@ pyinstaller==6.14.1
 pyinstaller-hooks-contrib==2025.5
 PyMuPDF==1.26.1
 PyPDF2==3.0.1
-PySimpleGUI==5.0.10
 python-docx==1.1.2
 pywin32==310
 pywin32-ctypes==0.2.3
