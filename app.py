@@ -107,6 +107,8 @@ def gerar():
         return "Nome e motivo são obrigatórios!", 400
         
     arquivos_para_abrir = []
+    pasta_pdf = os.path.join("static", "pdfs")
+    os.makedirs(pasta_pdf, exist_ok=True)
 
     if imprimir_receita == 'sim':
         receita_pdf = preencher_com_reportlab_receita(nome, None, receita)
