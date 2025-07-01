@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Receita e Atestado</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: #f2f6fa;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    h1 {
+      text-align: center;
+      color: #0066cc;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      height: 44px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+      background-color: white;
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #0066cc;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #005bb5;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    #receita-lista {
+      margin-top: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Gerador de Receita e Atestado</h1>
+    <form action="/gerar" method="POST">
+      <div class="form-group">
+        <label for="nome">Nome do paciente:</label>
+        <input type="text" id="nome" name="nome" required />
+      </div>
+
+      <div class="form-group">
+        <label>Gerar receita?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="imprimir_receita" value="sim" checked /> Sim</label>
+          <label><input type="radio" name="imprimir_receita" value="nao" /> Não</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Gerar atestado?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="imprimir_atestado" value="sim" checked /> Sim</label>
+          <label><input type="radio" name="imprimir_atestado" value="nao" /> Não</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="motivo">Motivo da Receita e CID:</label>
+        <select id="motivo" name="motivo" required>
+          <option value="2" selected>Tosse</option>
+          <option value="1">Diarreia</option>
+          <option value="3">Anti inflamatório</option>
+          <option value="4">Antibiótico</option>
+          <option value="5">Asma</option>
+          <option value="6">Anto britibe</option>
+          <option value="7">Tosse 6 meses</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="observacao">Observação da receita:</label>
+        <input type="text" id="observacao" name="observacao"/>
+      </div>
+
+      <div class="form-group">
+        <label for="justificativa">Justificativa do Atestado:</label>
+        <select id="justificativa" name="justificativa" required>
+          <option value="4" selected>Não estava em condições de trabalho</option>
+          <option value="1">Consulta Médica</option>
+          <option value="2">Acompanhar pessoa da família</option>
+          <option value="3">Entregar / retirar exames auxiliares</option>
+          <option value="5">Afastamento por x dias</option>
+          <option value="6">Retornar imediatamente ao trabalho</option>
+          <option value="7">Outros</option>
+        </select>
+      </div>
+
+      <!-- Aqui entra o bloco dinâmico -->
+      <div class="form-group" id="extra-div" style="display: none;">
+        <label id="extra-label" for="extra-input"></label>
+        <div id="extra-content"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Atestado para acompanhante?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="acompanhante" value="sim" /> Sim</label>
+          <label><input type="radio" name="acompanhante" value="nao" checked /> Não</label>
+        </div>
+      </div>
+
+      <div class="form-group" id="nome-acompanhante-div" style="display: none;">
+        <label for="nome-acompanhante">Nome do acompanhante:</label>
+        <input type="text" id="nome-acompanhante" name="nome-acompanhante" placeholder="Digite o nome do acompanhante" />
+    </div>
+
+      <div class="form-group" id="parentesco-div" style="display: none;">
+        <label for="parentesco">Parentesco (Acompanhante):</label>
+        <select id="parentesco" name="parentesco">
+          <option value="">Selecione...</option>
+          <option value="Filho(a)">Filho(a)</option>
+          <option value="Pai">Pai</option>
+          <option value="Mãe">Mãe</option>
+          <option value="Avô(ó)">Avô(ó)</option>
+          <option value="Sobrinho(a)">Sobrinho(a)</option>
+          <option value="Outro">Outro</option>
+        </select>
+      </div>
+
+      <button type="submit">Gerar PDF</button>
+    </form>
+    <br>
+    <!--form action="/shutdown" method="POST">
+        <button style="background-color: red;" type="submit">Encerrar Programa</button>
+    </!--form-->
+
+  </div>
+
+  <script>
+    const selectJustificativa = document.getElementById('justificativa');
+    const extraDiv = document.getElementById('extra-div');
+    const extraContent = document.getElementById('extra-content');
+    const extraLabel = document.getElementById('extra-label');
+
+    //const parentescoDiv = document.getElementById('parentesco-div');
+    const radioAcompanhante = document.getElementsByName('acompanhante');
+    const nomeAcompanhanteDiv = document.getElementById('nome-acompanhante-div');
+
+    function atualizarExtra() {
+      const valor = selectJustificativa.value;
+
+      if (valor === '2') {
+        // Acompanhar pessoa da família -> mostra select de parentesco para o atestado
+        extraDiv.style.display = 'block';
+        extraLabel.innerText = 'Parentesco no atestado:';
+        extraContent.innerHTML = `
+          <select id="parentesco-atestado" name="parentesco-atestado" required>
+            <option value="">Selecione...</option>
+            <option value="Filho(a)">Filho(a)</option>
+            <option value="Pai">Pai</option>
+            <option value="Mãe">Mãe</option>
+            <option value="Avô(ó)">Avô(ó)</option>
+            <option value="Sobrinho(a)">Sobrinho(a)</option>
+            <option value="Outro">Outro</option>
+          </select>
+        `;
+      } else if (valor === '7') {
+        // Outros -> mostra input texto
+        extraDiv.style.display = 'block';
+        extraLabel.innerText = 'Descreva o motivo do atestado:';
+        extraContent.innerHTML = `
+          <input type="text" id="motivo-outros-atestado" name="motivo-outros-atestado" placeholder="Descreva aqui" required />
+        `;
+      } else {
+        extraDiv.style.display = 'none';
+        extraContent.innerHTML = '';
+      }
+    }
+
+    selectJustificativa.addEventListener('change', atualizarExtra);
+    atualizarExtra();
+
+    // Controle do parentesco do acompanhante
+    radioAcompanhante.forEach(radio => {
+      radio.addEventListener('change', function () {
+        if (this.value === 'sim') {
+          //parentescoDiv.style.display = 'block';
+          nomeAcompanhanteDiv.style.display = 'block';
+        } else {
+          //parentescoDiv.style.display = 'none';
+          nomeAcompanhanteDiv.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
