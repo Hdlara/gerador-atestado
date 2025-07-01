@@ -106,7 +106,7 @@ def gerar():
     if not nome or not receita:
         return "Nome e motivo são obrigatórios!", 400
         
-     arquivos_para_abrir = []
+    arquivos_para_abrir = []
 
     if imprimir_receita == 'sim':
         receita_pdf = preencher_com_reportlab_receita(nome, None, receita)
