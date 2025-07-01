@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8" /><title>Arquivos</title></head>
+<body>
+  <h1>Arquivos gerados</h1>
+  <p>Caso os PDFs não abram automaticamente, clique nos links:</p>
+  <ul>
+    {% for arquivo in arquivos %}
+      <li><a href="{{ arquivo }}" target="_blank">{{ arquivo.split('/')[-1] }}</a></li>
+    {% endfor %}
+  </ul>
+  <script>
+    window.onload = function() {
+      {% for arquivo in arquivos %}
+        window.open("{{ arquivo }}", "_blank");
+      {% endfor %}
+    };
+  </script>
+</body>
+</html>

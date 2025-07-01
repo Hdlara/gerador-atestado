@@ -1,13 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import os
-import sys
-import signal
 from gerador_receita import preencher_com_reportlab_receita
 from gerador_atestado import preencher_com_reportlab_atestado_unico
 from gerador_atestado_duplo import preencher_com_reportlab_atestado_duplo
-from datetime import date, datetime
-import threading
-import webbrowser
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -104,22 +100,36 @@ def gerar():
 
     if not nome or not receita:
         return "Nome e motivo são obrigatórios!", 400
-           
+    
+    # Criar pasta para armazenar PDFs temporariamente (se não existir)
+    pasta_pdf = os.path.join(app.static_folder, "pdfs")
+    os.makedirs(pasta_pdf, exist_ok=True)
+
+    arquivos_para_abrir = []
+
     if imprimir_receita == 'sim':
         receita_pdf = preencher_com_reportlab_receita(nome, None, receita)
-        webbrowser.open(receita_pdf)
-    
+        # mover ou salvar na pasta_pdf
+        novo_caminho = os.path.join(pasta_pdf, f"receita_{datetime.now().timestamp()}.pdf")
+        os.rename(receita_pdf, novo_caminho)
+        arquivos_para_abrir.append(f"/static/pdfs/{os.path.basename(novo_caminho)}")
+
     if imprimir_atestado == 'sim' and acompanhante == "sim":
         atestado_pdf = preencher_com_reportlab_atestado_duplo(nome, motivo, cid, int(justificativa), nome_acompanhante, nome)
-        webbrowser.open(atestado_pdf)
+        novo_caminho = os.path.join(pasta_pdf, f"atestado_duplo_{datetime.now().timestamp()}.pdf")
+        os.rename(atestado_pdf, novo_caminho)
+        arquivos_para_abrir.append(f"/static/pdfs/{os.path.basename(novo_caminho)}")
     elif acompanhante == "sim":
         atestado_pdf = preencher_com_reportlab_atestado_unico(nome_acompanhante, nome, cid, 2)
-        webbrowser.open(atestado_pdf)
+        novo_caminho = os.path.join(pasta_pdf, f"atestado_acomp_{datetime.now().timestamp()}.pdf")
+        os.rename(atestado_pdf, novo_caminho)
+        arquivos_para_abrir.append(f"/static/pdfs/{os.path.basename(novo_caminho)}")
     else:
         atestado_pdf = preencher_com_reportlab_atestado_unico(nome, motivo, cid, int(justificativa))
-        webbrowser.open(atestado_pdf)
+        novo_caminho = os.path.join(pasta_pdf, f"atestado_{datetime.now().timestamp()}.pdf")
+        os.rename(atestado_pdf, novo_caminho)
+        arquivos_para_abrir.append(f"/static/pdfs/{os.path.basename(novo_caminho)}")
 
+    # Renderiza página com script que abre as abas dos PDFs
+    return render_template("abrir_pdfs.html", arquivos=arquivos_para_abrir)
 
-
-    #flash("Receita e atestado gerados com sucesso!")
-    return redirect(url_for('index'))
