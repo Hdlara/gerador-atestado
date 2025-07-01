@@ -121,10 +121,10 @@ def gerar():
         webbrowser.open(receita_pdf)
     
     if imprimir_atestado == 'sim' and acompanhante == "sim":
-        atestado_pdf = preencher_com_reportlab_atestado_duplo(nome, motivo, cid, int(justificativa), nome_acompanhante, parentesco)
+        atestado_pdf = preencher_com_reportlab_atestado_duplo(nome, motivo, cid, int(justificativa), nome_acompanhante, nome)
         webbrowser.open(atestado_pdf)
     elif acompanhante == "sim":
-        atestado_pdf = preencher_com_reportlab_atestado_unico(nome_acompanhante, parentesco, cid, 2)
+        atestado_pdf = preencher_com_reportlab_atestado_unico(nome_acompanhante, nome, cid, 2)
         webbrowser.open(atestado_pdf)
     else:
         atestado_pdf = preencher_com_reportlab_atestado_unico(nome, motivo, cid, int(justificativa))
@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
     if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
         threading.Timer(1, abrir_navegador).start()
-        threading.Timer(54000, encerrar_servidor).start()
+        #threading.Timer(54000, encerrar_servidor).start()
 
     app.run(debug=True)  
 
